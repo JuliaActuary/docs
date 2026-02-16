@@ -132,12 +132,89 @@ landing_page = """
             color: var(--text-light);
             border-top: 1px solid var(--card-border);
         }
+        /* Search bar in header */
+        #search-container {
+            position: relative;
+            display: inline-block;
+            margin-top: 1.25rem;
+        }
+        #search-container #search-input {
+            width: min(28em, 80vw);
+            height: 40px;
+            padding: 0 12px;
+            font-size: 1rem;
+            font-family: inherit;
+            border: 2px solid rgba(255,255,255,0.4);
+            border-radius: 6px;
+            background: rgba(255,255,255,0.15);
+            color: #fff;
+            outline: none;
+            transition: background 0.15s, border-color 0.15s;
+        }
+        #search-container #search-input::placeholder { color: rgba(255,255,255,0.7); }
+        #search-container #search-input:focus {
+            background: #fff;
+            color: var(--text);
+            border-color: #fff;
+        }
+        #search-container #search-input:focus::placeholder { color: #999; }
+        #search-container .search-keybinding {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: rgba(255,255,255,0.5);
+            font-size: 0.85rem;
+            pointer-events: none;
+        }
+        #search-container:focus-within .search-keybinding { display: none; }
+        /* Search results dropdown */
+        #search-container .suggestions {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            margin-top: 4px;
+            background: #fff;
+            border: 1px solid var(--card-border);
+            border-radius: 6px;
+            padding: 0.4rem;
+            list-style: none;
+            z-index: 100;
+            max-height: max(50vh, 300px);
+            overflow-y: auto;
+            text-align: left;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        #search-container:focus-within .suggestions { display: block; }
+        #search-container .suggestions.hidden { display: none !important; }
+        #search-container .suggestions mark { background-color: #fff3b0; color: #000; }
+        #search-container .suggestion { line-height: 1.3; border-radius: 4px; overflow: hidden; text-overflow: ellipsis; }
+        #search-container .sub-suggestions { list-style: none; padding: 0; }
+        #search-container .sub-suggestions .suggestion { margin-left: 1rem; }
+        #search-container .suggestion-header {
+            padding: 0.4rem 0.6rem;
+            display: block;
+            color: var(--text);
+            text-decoration: none;
+        }
+        #search-container .suggestion-header:hover,
+        #search-container .suggestion-header:focus { background: var(--card-hover); outline: none; }
+        #search-container .suggestion .suggestion-title { font-size: 1rem; font-weight: 600; }
+        #search-container .suggestion .suggestion-excerpt { font-size: 0.85rem; color: var(--text-light); margin-top: 2px; }
+        #search-container .sub-suggestions .suggestion-title { font-size: 0.9rem; }
     </style>
 </head>
 <body>
     <header>
         <h1>JuliaActuary Documentation</h1>
         <p>Unified documentation for the JuliaActuary open-source actuarial modeling ecosystem.</p>
+        <div id="search-container">
+            <input id="search-input" placeholder="Search all packages..." autocomplete="off">
+            <ol id="search-result-container" class="suggestions hidden"></ol>
+            <div class="search-keybinding">/</div>
+        </div>
     </header>
     <main>
         <div class="grid">
@@ -177,6 +254,123 @@ landing_page = """
     <footer>
         Built with <a href="https://github.com/JuliaComputing/MultiDocumenter.jl" style="color: inherit; text-decoration: underline;">MultiDocumenter.jl</a>
     </footer>
+    <script>window.MULTIDOCUMENTER_ROOT_PATH = '/';</script>
+    <script type="module">
+    const MAX_RESULTS = 20;
+    let FOCUSABLE_ELEMENTS = [];
+    let FOCUSED_ELEMENT_INDEX = -1;
+
+    const pagefind = await import(window.MULTIDOCUMENTER_ROOT_PATH + "pagefind/pagefind.js");
+
+    function initialize() {
+        pagefind.init();
+        registerSearchListener();
+        document.body.addEventListener('keydown', ev => {
+            if (document.activeElement === document.body && (ev.key === '/' || ev.key === 's')) {
+                document.getElementById('search-input').focus();
+                ev.preventDefault();
+            }
+        });
+    }
+
+    function registerSearchListener() {
+        const input = document.getElementById('search-input');
+        const suggestions = document.getElementById('search-result-container');
+
+        async function runSearch() {
+            const query = input.value;
+            const search = await pagefind.debouncedSearch(query, {}, 300);
+            if (search) { buildResults(search.results); }
+        }
+
+        input.addEventListener('keyup', ev => { runSearch(); });
+
+        input.addEventListener('keydown', ev => {
+            if (ev.key === 'ArrowDown') {
+                FOCUSED_ELEMENT_INDEX = 0;
+                if (FOCUSABLE_ELEMENTS.length > 0) FOCUSABLE_ELEMENTS[0].focus();
+                ev.preventDefault();
+            } else if (ev.key === 'ArrowUp') {
+                FOCUSED_ELEMENT_INDEX = FOCUSABLE_ELEMENTS.length - 1;
+                if (FOCUSABLE_ELEMENTS.length > 0) FOCUSABLE_ELEMENTS[FOCUSED_ELEMENT_INDEX].focus();
+                ev.preventDefault();
+            }
+        });
+
+        suggestions.addEventListener('keydown', ev => {
+            if (ev.key === 'ArrowDown') {
+                FOCUSED_ELEMENT_INDEX += 1;
+                if (FOCUSED_ELEMENT_INDEX < FOCUSABLE_ELEMENTS.length) {
+                    FOCUSABLE_ELEMENTS[FOCUSED_ELEMENT_INDEX].focus();
+                } else {
+                    FOCUSED_ELEMENT_INDEX = -1;
+                    input.focus();
+                }
+                ev.preventDefault();
+            } else if (ev.key === 'ArrowUp') {
+                FOCUSED_ELEMENT_INDEX -= 1;
+                if (FOCUSED_ELEMENT_INDEX >= 0) {
+                    FOCUSABLE_ELEMENTS[FOCUSED_ELEMENT_INDEX].focus();
+                } else {
+                    FOCUSED_ELEMENT_INDEX = -1;
+                    input.focus();
+                }
+                ev.preventDefault();
+            }
+        });
+
+        input.addEventListener('focus', ev => { runSearch(); });
+    }
+
+    function renderResult(result) {
+        const entry = document.createElement('li');
+        entry.classList.add('suggestion');
+        const linkContainer = document.createElement('a');
+        linkContainer.classList.add('suggestion-header');
+        linkContainer.setAttribute('href', result.url);
+        const page = document.createElement('p');
+        page.classList.add('suggestion-title');
+        page.innerText = result.title ?? result.meta.title;
+        const excerpt = document.createElement('p');
+        excerpt.classList.add('suggestion-excerpt');
+        excerpt.innerHTML = result.excerpt;
+        linkContainer.appendChild(page);
+        linkContainer.appendChild(excerpt);
+        entry.appendChild(linkContainer);
+        return entry;
+    }
+
+    async function buildResults(results) {
+        const suggestions = document.getElementById('search-result-container');
+        const children = await Promise.all(results.slice(0, MAX_RESULTS - 1).map(async (r) => {
+            const data = await r.data();
+            const entry = renderResult(data);
+            if (data.sub_results.length > 0) {
+                const subResults = document.createElement('ol');
+                subResults.classList.add('sub-suggestions');
+                data.sub_results.forEach(subresult => {
+                    subResults.appendChild(renderResult(subresult));
+                });
+                entry.appendChild(subResults);
+            }
+            return entry;
+        }));
+        if (results.length > 0) {
+            suggestions.classList.remove('hidden');
+        } else {
+            suggestions.classList.add('hidden');
+        }
+        suggestions.replaceChildren(...children);
+        FOCUSED_ELEMENT_INDEX = -1;
+        FOCUSABLE_ELEMENTS = [...suggestions.querySelectorAll('a')];
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initialize);
+    } else {
+        initialize();
+    }
+    </script>
 </body>
 </html>
 """
