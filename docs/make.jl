@@ -330,7 +330,7 @@ landing_page = """
         linkContainer.setAttribute('href', result.url);
         const page = document.createElement('p');
         page.classList.add('suggestion-title');
-        page.innerText = result.title ?? result.meta.title;
+        page.innerText = result.title ?? result.meta?.title ?? '';
         const excerpt = document.createElement('p');
         excerpt.classList.add('suggestion-excerpt');
         excerpt.innerHTML = result.excerpt;
