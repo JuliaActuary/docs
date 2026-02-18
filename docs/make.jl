@@ -277,6 +277,11 @@ landing_page = """
         const input = document.getElementById('search-input');
         const suggestions = document.getElementById('search-result-container');
 
+        // Prevent mousedown inside the results from stealing focus away from
+        // the input, which would hide the :focus-within dropdown before the
+        // click event can fire and navigate.
+        suggestions.addEventListener('mousedown', ev => { ev.preventDefault(); });
+
         async function runSearch() {
             const query = input.value;
             const search = await pagefind.debouncedSearch(query, {}, 300);
