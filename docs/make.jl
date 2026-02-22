@@ -272,6 +272,8 @@ landing_page = """
     <footer>
         Built with <a href="https://github.com/JuliaComputing/MultiDocumenter.jl" style="color: inherit; text-decoration: underline;">MultiDocumenter.jl</a>
     </footer>
+    <script data-goatcounter="https://juliaactuary.goatcounter.com/count"
+        async src="//gc.zgo.at/count.js"></script>
     <script>window.MULTIDOCUMENTER_ROOT_PATH = '/';</script>
     <script type="module">
     const MAX_RESULTS = 20;
@@ -398,6 +400,22 @@ landing_page = """
 </html>
 """
 write(joinpath(outpath, "index.html"), landing_page)
+
+# Inject GoatCounter analytics into all package documentation pages
+goatcounter_script = """<script data-goatcounter="https://juliaactuary.goatcounter.com/count"
+    async src="//gc.zgo.at/count.js"></script>"""
+
+for (root, dirs, files) in walkdir(outpath)
+    for file in files
+        endswith(file, ".html") || continue
+        filepath = joinpath(root, file)
+        content = read(filepath, String)
+        occursin("goatcounter", content) && continue
+        if occursin("</body>", content)
+            write(filepath, replace(content, "</body>" => goatcounter_script * "\n</body>"))
+        end
+    end
+end
 
 # Deploy to gh-pages
 if "deploy" in ARGS
