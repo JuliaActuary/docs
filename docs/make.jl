@@ -55,9 +55,12 @@ MultiDocumenter.make(
         index_versions = ["stable"],
         engine = MultiDocumenter.PageFind,
     ),
-    rootpath         = "/",
-    canonical_domain = "https://docs.juliaactuary.org",
-    sitemap          = true,
+    rootpath           = "/",
+    canonical_domain   = "https://docs.juliaactuary.org",
+    sitemap            = true,
+    # cassette-futurism palette + typography applied site-wide.
+    assets_dir         = joinpath(@__DIR__, "assets"),
+    custom_stylesheets = ["assets/cassette.css"],
 )
 
 # Custom landing page (replaces the auto-generated redirect)
@@ -71,45 +74,48 @@ landing_page = """
     <link rel="canonical" href="https://docs.juliaactuary.org/" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400;1,700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="assets/cassette.css">
     <style>
         :root {
-            --julia-red: #CB3C33;
-            --julia-purple: #9558B2;
-            --primary: #9558B2;
-            --primary-light: #a76bc4;
-            --bg: #fff;
-            --text: #24292e;
-            --text-light: #586069;
-            --card-border: #e1e4e8;
-            --card-hover: #f6f8fa;
+            --cf-paper:        #F0EDE3;
+            --cf-paper-deep:   #E6E2D5;
+            --cf-paper-bright: #F7F4EB;
+            --cf-ink:          #1B2A3A;
+            --cf-ink-soft:     #3C4A5C;
+            --cf-rule:         #B6AD90;
+            --cf-red:          #C8351C;
+            --cf-amber:        #D4A017;
+            --cf-blue:         #1F4E79;
         }
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
-            color: var(--text);
+            font-family: "Atkinson Hyperlegible", "Inter", system-ui, sans-serif;
+            background-color: var(--cf-paper);
+            color: var(--cf-ink);
             line-height: 1.6;
             min-height: 100vh;
             display: flex;
             flex-direction: column;
         }
         header {
-            background: linear-gradient(-45deg, var(--julia-red), var(--julia-purple) 100%);
-            background-size: 300% 300%;
-            animation: AnimateBG 40s ease infinite;
-            color: azure;
+            background: var(--cf-ink);
+            color: var(--cf-paper);
             padding: 2.5rem 1rem 2rem;
             text-align: center;
+            border-top: 2px solid var(--cf-amber);
+            border-bottom: 2px solid var(--cf-red);
         }
-        @keyframes AnimateBG {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
+        .logo { width: 100px; height: 100px; margin-bottom: 0.75rem; filter: drop-shadow(0 2px 8px rgba(0,0,0,0.35)); }
+        header h1 {
+            font-family: "Source Serif 4", Georgia, serif;
+            font-size: 2rem;
+            font-weight: 400;
+            margin-bottom: 0.5rem;
+            color: var(--cf-paper);
         }
-        .logo { width: 100px; height: 100px; margin-bottom: 0.75rem; filter: drop-shadow(0 2px 8px rgba(0,0,0,0.2)); }
-        header h1 { font-size: 2rem; font-weight: 700; margin-bottom: 0.5rem; }
-        header p { font-size: 1.1rem; opacity: 0.92; max-width: 600px; margin: 0 auto; }
-        main { max-width: 900px; margin: 2rem auto; padding: 0 1rem; flex: 1; width: 100%; }
+        header p { font-size: 1.05rem; opacity: 0.88; max-width: 600px; margin: 0 auto; color: var(--cf-paper); }
+        main { max-width: 960px; margin: 2rem auto; padding: 0 1rem; flex: 1; width: 100%; }
         .grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
@@ -117,35 +123,41 @@ landing_page = """
             margin: 1.5rem 0 2rem;
         }
         .card {
-            border: 1px solid var(--card-border);
-            border-radius: 6px;
+            background: var(--cf-paper-bright);
+            border: 1px solid var(--cf-rule);
+            border-radius: 4px;
             padding: 1.25rem;
             text-decoration: none;
-            color: var(--text);
-            transition: background 0.15s, border-color 0.15s;
+            color: var(--cf-ink);
+            transition: transform 120ms ease, box-shadow 120ms ease, border-color 120ms ease;
             display: block;
         }
-        .card:hover { background: var(--card-hover); border-color: var(--primary-light); }
-        .card h2 { font-size: 1rem; color: var(--primary); margin-bottom: 0.35rem; }
-        .card p { font-size: 0.875rem; color: var(--text-light); }
-        .back-link {
-            text-align: center;
-            margin: 1rem 0 2rem;
+        .card:hover {
+            transform: translateY(-2px);
+            border-color: var(--cf-amber);
+            box-shadow: 0 4px 12px rgba(27, 42, 58, 0.08);
         }
-        .back-link a {
-            color: var(--primary);
-            font-weight: 500;
-            text-decoration: none;
+        .card h2 {
+            font-family: "Source Serif 4", Georgia, serif;
+            font-size: 1.15rem;
+            font-weight: 400;
+            color: var(--cf-ink);
+            margin-bottom: 0.35rem;
         }
-        .back-link a:hover { text-decoration: underline; }
+        .card p { font-size: 0.875rem; color: var(--cf-ink-soft); }
+        .back-link { text-align: center; margin: 1rem 0 2rem; }
+        .back-link a { color: var(--cf-red); font-weight: 500; text-decoration: none; }
+        .back-link a:hover { color: var(--cf-amber); text-decoration: underline; }
         footer {
             text-align: center;
             padding: 1.5rem 1rem;
             font-size: 0.8rem;
-            color: var(--text-light);
-            border-top: 1px solid var(--card-border);
+            color: var(--cf-ink-soft);
+            border-top: 1px solid var(--cf-rule);
         }
-        /* Search bar in header */
+        footer a { color: var(--cf-red); }
+        footer a:hover { color: var(--cf-amber); }
+        /* Search bar in header — sits on the deep-ink panel */
         #search-container {
             position: relative;
             display: inline-block;
@@ -157,31 +169,33 @@ landing_page = """
             padding: 0 12px;
             font-size: 1rem;
             font-family: inherit;
-            border: 2px solid rgba(255,255,255,0.4);
-            border-radius: 6px;
-            background: rgba(255,255,255,0.15);
-            color: #fff;
+            border: 1px solid rgba(240, 237, 227, 0.45);
+            border-radius: 4px;
+            background: rgba(240, 237, 227, 0.10);
+            color: var(--cf-paper);
             outline: none;
             transition: background 0.15s, border-color 0.15s;
         }
-        #search-container #search-input::placeholder { color: rgba(255,255,255,0.7); }
+        #search-container #search-input::placeholder { color: rgba(240, 237, 227, 0.7); }
         #search-container #search-input:focus {
-            background: #fff;
-            color: var(--text);
-            border-color: #fff;
+            background: var(--cf-paper);
+            color: var(--cf-ink);
+            border-color: var(--cf-amber);
+            box-shadow: 0 0 0 1px var(--cf-amber);
         }
-        #search-container #search-input:focus::placeholder { color: #999; }
+        #search-container #search-input:focus::placeholder { color: var(--cf-ink-soft); }
         #search-container .search-keybinding {
             position: absolute;
             right: 10px;
             top: 50%;
             transform: translateY(-50%);
-            color: rgba(255,255,255,0.5);
+            color: rgba(240, 237, 227, 0.6);
             font-size: 0.85rem;
+            font-family: "JuliaMono", ui-monospace, monospace;
             pointer-events: none;
         }
         #search-container:focus-within .search-keybinding { display: none; }
-        /* Search results dropdown */
+        /* Search results dropdown — paper card */
         #search-container .suggestions {
             display: none;
             position: absolute;
@@ -189,33 +203,33 @@ landing_page = """
             left: 0;
             right: 0;
             margin-top: 4px;
-            background: #fff;
-            border: 1px solid var(--card-border);
-            border-radius: 6px;
+            background: var(--cf-paper-bright);
+            border: 1px solid var(--cf-rule);
+            border-radius: 4px;
             padding: 0.4rem;
             list-style: none;
             z-index: 100;
             max-height: max(50vh, 300px);
             overflow-y: auto;
             text-align: left;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            box-shadow: 0 4px 12px rgba(27, 42, 58, 0.12);
         }
         #search-container:focus-within .suggestions { display: block; }
         #search-container .suggestions.hidden { display: none !important; }
-        #search-container .suggestions mark { background-color: #fff3b0; color: #000; }
-        #search-container .suggestion { line-height: 1.3; border-radius: 4px; overflow: hidden; text-overflow: ellipsis; }
+        #search-container .suggestions mark { background-color: var(--cf-amber); color: var(--cf-ink); }
+        #search-container .suggestion { line-height: 1.3; border-radius: 3px; overflow: hidden; text-overflow: ellipsis; }
         #search-container .sub-suggestions { list-style: none; padding: 0; }
         #search-container .sub-suggestions .suggestion { margin-left: 1rem; }
         #search-container .suggestion-header {
             padding: 0.4rem 0.6rem;
             display: block;
-            color: var(--text);
+            color: var(--cf-ink);
             text-decoration: none;
         }
         #search-container .suggestion-header:hover,
-        #search-container .suggestion-header:focus { background: var(--card-hover); outline: none; }
+        #search-container .suggestion-header:focus { background: var(--cf-paper-deep); outline: none; }
         #search-container .suggestion .suggestion-title { font-size: 1rem; font-weight: 600; }
-        #search-container .suggestion .suggestion-excerpt { font-size: 0.85rem; color: var(--text-light); margin-top: 2px; }
+        #search-container .suggestion .suggestion-excerpt { font-size: 0.85rem; color: var(--cf-ink-soft); margin-top: 2px; }
         #search-container .sub-suggestions .suggestion-title { font-size: 0.9rem; }
     </style>
 </head>
