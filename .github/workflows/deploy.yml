@@ -3,7 +3,7 @@ on:
   push:
     branches: [main]
   schedule:
-    - cron: '0 4 * * 1'  # Weekly Monday rebuild to pick up upstream changes
+    - cron: '0 */12 * * *'  # Every 12 hours — pick up new package releases promptly
   workflow_dispatch:       # Manual trigger
 
 permissions:
