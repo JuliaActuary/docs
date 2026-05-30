@@ -1,0 +1,114 @@
+/* =====================================================================
+   Cassette-futurism overrides for docs.juliaactuary.org.
+   Injected into every aggregated page via MultiDocumenter's
+   `custom_stylesheets`. Applies palette + typography on top of
+   Documenter.jl's default styles; layout stays Documenter-default.
+   Mirrors JuliaActuary.org/styles.css so the two sites share a look.
+   ===================================================================== */
+
+:root {
+    --cf-paper:        #F0EDE3;
+    --cf-paper-deep:   #E6E2D5;
+    --cf-paper-bright: #F7F4EB;
+    --cf-ink:          #1B2A3A;
+    --cf-ink-soft:    #3C4A5C;
+    --cf-rule:         #B6AD90;
+    --cf-red:          #C8351C;
+    --cf-amber:        #D4A017;
+    --cf-blue:         #1F4E79;
+}
+
+/* ---- Body type --------------------------------------------------------
+   Atkinson Hyperlegible body / Source Serif 4 headings / JuliaMono code.
+   Loaded via Google Fonts on the landing page; for package pages the
+   fonts may not yet be linked, so include @import here as well.
+   --------------------------------------------------------------------- */
+@import url("https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400;1,700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap");
+
+html, body {
+    background-color: var(--cf-paper) !important;
+    color: var(--cf-ink);
+    font-family: "Atkinson Hyperlegible", "Inter", system-ui, -apple-system,
+        "Helvetica Neue", sans-serif !important;
+}
+
+h1, h2, h3, h4, h5, h6,
+.docs-main h1, .docs-main h2, .docs-main h3, .docs-main h4, .docs-main h5, .docs-main h6 {
+    font-family: "Source Serif 4", Georgia, "Times New Roman", Times, serif !important;
+    font-weight: 400 !important;
+    color: var(--cf-ink);
+}
+
+a            { color: var(--cf-red); }
+a:hover,
+a:focus      { color: var(--cf-amber); }
+
+pre, code, kbd, samp,
+.docs-main pre, .docs-main code {
+    font-family: "JuliaMono", ui-monospace, monospace !important;
+}
+pre, .docs-main pre {
+    background-color: var(--cf-paper-bright) !important;
+    border: 1px solid var(--cf-rule) !important;
+    border-radius: 4px;
+}
+:not(pre) > code, .docs-main :not(pre) > code {
+    background-color: var(--cf-paper-deep) !important;
+    color: var(--cf-ink) !important;
+    padding: 1px 5px;
+    border-radius: 2px;
+}
+
+/* ---- MultiDocumenter top navigation strip -----------------------------
+   The strip appears above every aggregated package page. Selectors below
+   target the common cases (`.MultiDocumenter`, `#multi-docs-navbar`, and
+   plain `nav` near the top of `body`). Refine on the first preview build
+   once the actual class names are visible in devtools.
+   --------------------------------------------------------------------- */
+.MultiDocumenter,
+.multi-doc-nav,
+#multi-docs-navbar,
+body > nav:first-of-type {
+    background-color: var(--cf-ink) !important;
+    border-bottom: 2px solid var(--cf-amber) !important;
+    color: var(--cf-paper);
+}
+.MultiDocumenter a,
+.multi-doc-nav a,
+#multi-docs-navbar a,
+body > nav:first-of-type a {
+    color: var(--cf-paper) !important;
+}
+.MultiDocumenter a:hover,
+.multi-doc-nav a:hover,
+#multi-docs-navbar a:hover,
+body > nav:first-of-type a:hover {
+    color: var(--cf-amber) !important;
+}
+
+/* ---- Documenter sidebar tweaks ---------------------------------------
+   Keep Documenter's sidebar layout; just shift colors so the cassette
+   palette reaches the secondary chrome.
+   --------------------------------------------------------------------- */
+.docs-sidebar {
+    background-color: var(--cf-paper-deep) !important;
+    border-right: 1px solid var(--cf-rule);
+}
+.docs-sidebar a { color: var(--cf-ink-soft); }
+.docs-sidebar a:hover { color: var(--cf-red); }
+.docs-sidebar .docs-menu .tocitem.is-active,
+.docs-sidebar .docs-menu .is-active {
+    background-color: var(--cf-paper-bright);
+    border-left: 3px solid var(--cf-amber);
+    color: var(--cf-ink) !important;
+}
+
+/* ---- Blockquotes, hr, tables — small touches -------------------------- */
+blockquote {
+    border-left: 3px solid var(--cf-amber) !important;
+    color: var(--cf-ink-soft);
+    background: transparent;
+}
+hr { border-color: var(--cf-rule); opacity: 0.7; }
+table thead { border-bottom: 1.5px solid var(--cf-ink) !important; }
+table tbody tr { border-color: var(--cf-rule); }
