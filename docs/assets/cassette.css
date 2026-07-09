@@ -1,10 +1,32 @@
 /* =====================================================================
    Cassette-futurism overrides for docs.juliaactuary.org.
    Injected into every aggregated page via MultiDocumenter's
-   `custom_stylesheets`. Applies palette + typography on top of
-   Documenter.jl's default styles; layout stays Documenter-default.
-   Mirrors JuliaActuary.org/styles.css so the two sites share a look.
+   `custom_stylesheets`, on top of Documenter.jl's own themes.
+
+   The JuliaActuary brand (juliaactuary.org) ships a light "paper" look; this
+   file provides BOTH a light skin and a matching dark one:
+
+     • LIGHT  (default + documenter-light)  -> cassette "paper": cream
+       surfaces, ink serif headings, red/amber accents.
+     • DARK   (documenter-dark)             -> cassette "night": the same
+       identity inverted — deep navy-ink surfaces, warm paper text, amber/red
+       accents. documenter-dark is the primary dark theme, so this is what a
+       reader with an OS dark preference gets.
+     • catppuccin latte/frappe/macchiato/mocha are left NATIVE as alternative
+       options in the theme picker.
+
+   Brand typography (Atkinson / Source Serif 4 / JuliaMono) applies in every
+   theme. Documenter marks the active theme with a `theme--<name>` class on
+   <html> (empty class = default light). Each skin is scoped to its theme(s)
+   so it never bleeds into another — the previous dark-mode breakage came from
+   the light paper palette being pinned with !important under documenter-dark's
+   light text (cream backgrounds + white text). The dark skin below layers on
+   documenter-dark, remapping its green-charcoal neutrals to navy.
    ===================================================================== */
+
+/* @import MUST come before any style rule or the browser drops it — which is
+   why the brand fonts previously failed to load on package pages. */
+@import url("https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400;1,700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap");
 
 :root {
     --cf-paper:        #F0EDE3;
@@ -18,52 +40,293 @@
     --cf-blue:         #1F4E79;
 }
 
-/* ---- Body type --------------------------------------------------------
+/* ---- Typography — applied in ALL themes -------------------------------
    Atkinson Hyperlegible body / Source Serif 4 headings / JuliaMono code.
-   Loaded via Google Fonts on the landing page; for package pages the
-   fonts may not yet be linked, so include @import here as well.
+   Colour is NOT set here; only the type, so the brand fonts survive into
+   dark mode while each theme keeps its own colours.
    --------------------------------------------------------------------- */
-@import url("https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400;1,700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap");
-
 html, body {
-    background-color: var(--cf-paper) !important;
-    color: var(--cf-ink);
     font-family: "Atkinson Hyperlegible", "Inter", system-ui, -apple-system,
         "Helvetica Neue", sans-serif !important;
 }
-
 h1, h2, h3, h4, h5, h6,
 .docs-main h1, .docs-main h2, .docs-main h3, .docs-main h4, .docs-main h5, .docs-main h6 {
     font-family: "Source Serif 4", Georgia, "Times New Roman", Times, serif !important;
     font-weight: 400 !important;
-    color: var(--cf-ink);
 }
-
-a            { color: var(--cf-red); }
-a:hover,
-a:focus      { color: var(--cf-amber); }
-
 pre, code, kbd, samp,
 .docs-main pre, .docs-main code {
     font-family: "JuliaMono", ui-monospace, monospace !important;
 }
-pre, .docs-main pre {
-    background-color: var(--cf-paper-bright) !important;
-    border: 1px solid var(--cf-rule) !important;
-    border-radius: 4px;
+
+/* ---- Cassette "paper" palette — LIGHT experience only ----------------
+   Scope = the default light theme + explicitly-chosen documenter-light.
+   Excluded: documenter-dark and every catppuccin theme, so those keep
+   their native (readable) palettes instead of being stomped with cream.
+   --------------------------------------------------------------------- */
+html:not(.theme--documenter-dark):not(.theme--catppuccin-latte):not(.theme--catppuccin-frappe):not(.theme--catppuccin-macchiato):not(.theme--catppuccin-mocha) {
+    background-color: var(--cf-paper) !important;
+    color: var(--cf-ink);
+
+    body {
+        background-color: var(--cf-paper) !important;
+        color: var(--cf-ink);
+    }
+
+    h1, h2, h3, h4, h5, h6 { color: var(--cf-ink); }
+
+    a          { color: var(--cf-red); }
+    a:hover,
+    a:focus    { color: var(--cf-amber); }
+    /* Section headings are anchors too; keep them ink, not link-red
+       (docstring bindings, `a.docstring-binding`, stay accent-coloured). */
+    a.docs-heading-anchor,
+    a.docs-heading-anchor:hover,
+    a.docs-heading-anchor:focus { color: var(--cf-ink) !important; }
+
+    pre, .docs-main pre {
+        background-color: var(--cf-paper-bright) !important;
+        border: 1px solid var(--cf-rule) !important;
+        border-radius: 4px;
+    }
+    :not(pre) > code, .docs-main :not(pre) > code {
+        background-color: var(--cf-paper-deep) !important;
+        color: var(--cf-ink) !important;
+        padding: 1px 5px;
+        border-radius: 2px;
+    }
+
+    /* Documenter sidebar — keep its layout, shift to the paper palette. */
+    .docs-sidebar { background-color: var(--cf-paper-deep) !important; border-right: 1px solid var(--cf-rule); }
+    .docs-sidebar a { color: var(--cf-ink-soft); }
+    .docs-sidebar a:hover { color: var(--cf-red); }
+    .docs-sidebar .docs-menu .tocitem.is-active,
+    .docs-sidebar .docs-menu .is-active {
+        background-color: var(--cf-paper-bright);
+        border-left: 3px solid var(--cf-amber);
+        color: var(--cf-ink) !important;
+    }
+
+    /* Blockquotes, hr, tables — small touches. */
+    blockquote {
+        border-left: 3px solid var(--cf-amber) !important;
+        color: var(--cf-ink-soft);
+        background: transparent;
+    }
+    hr { border-color: var(--cf-rule); opacity: 0.7; }
+    table thead { border-bottom: 1.5px solid var(--cf-ink) !important; }
+    table tbody tr { border-color: var(--cf-rule); }
 }
-:not(pre) > code, .docs-main :not(pre) > code {
-    background-color: var(--cf-paper-deep) !important;
-    color: var(--cf-ink) !important;
-    padding: 1px 5px;
-    border-radius: 2px;
+
+/* ---- Cassette "night" palette — dark experience ----------------------
+   A dark form of the cassette brand: deep navy-ink surfaces, warm paper
+   text, amber/red accents (the light theme, inverted). Layered over
+   Documenter's `documenter-dark` theme, remapping its green-charcoal
+   neutrals — base #1f2424, panels #282f2f, hover #32393a, rules #5e6d6f —
+   to navy equivalents at matched lightness, so the whole page reads as one
+   cassette surface. documenter-dark is the primary dark theme, so this is
+   what OS-dark visitors get; the catppuccin themes remain native options.
+   Overrides use !important to sit on top of the compiled theme.
+   --------------------------------------------------------------------- */
+html.theme--documenter-dark {
+    --cf-night-bg:      #14202D;  /* page base   (was #1f2424) */
+    --cf-night-panel:   #1B2A39;  /* raised panel(was #282f2f) */
+    --cf-night-hover:   #24374A;  /* hover/chip  (was #32393a) */
+    --cf-night-border:  #38495C;  /* rules       (was #5e6d6f) */
+    --cf-night-text:    #E7E2D6;  /* body text   (was #dbdee0) */
+    --cf-night-head:    #F0EDE3;  /* headings — bright paper   */
+    --cf-night-soft:    #A7B2BF;  /* muted text               */
+    --cf-night-link:    #EE7A54;  /* links — brightened cf-red */
+    --cf-night-amber:   #E3B23C;  /* accent/hover — cf-amber   */
+
+    background-color: var(--cf-night-bg) !important;
+    color: var(--cf-night-text) !important;
+}
+
+/* Base surfaces */
+html.theme--documenter-dark body,
+html.theme--documenter-dark #documenter .docs-main {
+    background-color: var(--cf-night-bg) !important;
+    color: var(--cf-night-text) !important;
+}
+html.theme--documenter-dark .content { color: var(--cf-night-text) !important; }
+
+/* Headings — bright paper (serif already applied in the typography block) */
+html.theme--documenter-dark h1, html.theme--documenter-dark h2,
+html.theme--documenter-dark h3, html.theme--documenter-dark h4,
+html.theme--documenter-dark h5, html.theme--documenter-dark h6,
+html.theme--documenter-dark .content h1, html.theme--documenter-dark .content h2,
+html.theme--documenter-dark .content h3, html.theme--documenter-dark .content h4,
+html.theme--documenter-dark .content h1 code, html.theme--documenter-dark .content h2 code {
+    color: var(--cf-night-head) !important;
+}
+
+/* Body links — cassette night-red, amber on hover */
+html.theme--documenter-dark .content a,
+html.theme--documenter-dark .docs-main article a {
+    color: var(--cf-night-link) !important;
+}
+html.theme--documenter-dark .content a:hover,
+html.theme--documenter-dark .content a code:hover,
+html.theme--documenter-dark .docs-main article a:hover {
+    color: var(--cf-night-amber) !important;
+}
+html.theme--documenter-dark .content a code { color: var(--cf-night-link) !important; }
+
+/* Section-heading anchors: paper, not link-coloured. `.content`-qualified so
+   this beats the `.content a` rule above (docstring bindings keep the accent). */
+html.theme--documenter-dark .content a.docs-heading-anchor,
+html.theme--documenter-dark .content a.docs-heading-anchor:hover,
+html.theme--documenter-dark .content a.docs-heading-anchor:focus,
+html.theme--documenter-dark h1 a.docs-heading-anchor,
+html.theme--documenter-dark h2 a.docs-heading-anchor,
+html.theme--documenter-dark h3 a.docs-heading-anchor {
+    color: var(--cf-night-head) !important;
+}
+
+/* Code — navy panels instead of green-charcoal */
+html.theme--documenter-dark pre,
+html.theme--documenter-dark .content pre {
+    background-color: var(--cf-night-panel) !important;
+    border: 1px solid var(--cf-night-border) !important;
+    color: var(--cf-night-text) !important;
+}
+html.theme--documenter-dark code,
+html.theme--documenter-dark :not(pre) > code {
+    background-color: var(--cf-night-hover) !important;
+    color: var(--cf-night-text) !important;
+}
+
+/* Sidebar */
+html.theme--documenter-dark #documenter .docs-sidebar {
+    background-color: #101A25 !important;
+    border-right: 1px solid var(--cf-night-border) !important;
+}
+html.theme--documenter-dark #documenter .docs-sidebar .docs-package-name a { color: var(--cf-night-head) !important; }
+html.theme--documenter-dark #documenter .docs-sidebar ul.docs-menu .tocitem,
+html.theme--documenter-dark #documenter .docs-sidebar ul.docs-menu .tocitem:hover {
+    background: transparent !important;
+    color: var(--cf-night-soft) !important;
+}
+html.theme--documenter-dark #documenter .docs-sidebar ul.docs-menu a.tocitem:hover,
+html.theme--documenter-dark #documenter .docs-sidebar ul.docs-menu label.tocitem:hover {
+    background-color: var(--cf-night-hover) !important;
+    color: var(--cf-night-head) !important;
+}
+html.theme--documenter-dark #documenter .docs-sidebar ul.docs-menu li.is-active,
+html.theme--documenter-dark #documenter .docs-sidebar ul.docs-menu li.is-active .tocitem,
+html.theme--documenter-dark #documenter .docs-sidebar ul.docs-menu li.is-active .tocitem:hover {
+    background-color: var(--cf-night-panel) !important;
+    color: var(--cf-night-head) !important;
+    border-color: var(--cf-night-border) !important;
+    box-shadow: inset 3px 0 0 var(--cf-night-amber) !important;  /* amber accent, echoes light theme */
+}
+html.theme--documenter-dark #documenter .docs-sidebar ul.docs-menu>li li { border-left: 1px solid var(--cf-night-border) !important; }
+html.theme--documenter-dark #documenter .docs-sidebar { border-color: var(--cf-night-border) !important; }
+
+/* Top navbar / breadcrumb */
+html.theme--documenter-dark #documenter .docs-main header.docs-navbar {
+    background-color: var(--cf-night-bg) !important;
+    border-bottom: 1px solid var(--cf-night-border) !important;
+    box-shadow: none !important;
+}
+/* Navbar links + icons (breadcrumb, GitHub, settings) — paper/soft, amber
+   hover, replacing documenter-dark's teal so the top bar reads cassette. */
+html.theme--documenter-dark #documenter .docs-main header.docs-navbar a,
+html.theme--documenter-dark #documenter .docs-main header.docs-navbar .docs-navbar-link {
+    color: var(--cf-night-soft) !important;
+}
+html.theme--documenter-dark #documenter .docs-main header.docs-navbar a:hover,
+html.theme--documenter-dark #documenter .docs-main header.docs-navbar .docs-navbar-link:hover {
+    color: var(--cf-night-amber) !important;
+}
+
+/* Docstrings */
+html.theme--documenter-dark .docstring {
+    border: 1px solid var(--cf-night-border) !important;
+    background-color: var(--cf-night-bg) !important;
+}
+html.theme--documenter-dark .docstring > header,
+html.theme--documenter-dark .docstring > summary {
+    background-color: var(--cf-night-panel) !important;
+    border-bottom: 1px solid var(--cf-night-border) !important;
+}
+html.theme--documenter-dark .docstring-category { color: var(--cf-night-amber) !important; }
+
+/* Admonitions — navy body, keep the coloured accent borders */
+html.theme--documenter-dark .admonition { background-color: var(--cf-night-panel) !important; }
+html.theme--documenter-dark .admonition-body { color: var(--cf-night-text) !important; }
+html.theme--documenter-dark .admonition-body code { background-color: var(--cf-night-hover) !important; }
+
+/* Blockquote — amber rule to echo the light theme */
+html.theme--documenter-dark .content blockquote {
+    background-color: var(--cf-night-panel) !important;
+    border-left: 5px solid var(--cf-night-amber) !important;
+    color: var(--cf-night-text) !important;
+}
+
+/* Tables */
+html.theme--documenter-dark .content table td,
+html.theme--documenter-dark .content table th {
+    border-color: var(--cf-night-border) !important;
+    color: var(--cf-night-text) !important;
+}
+html.theme--documenter-dark .content table th { background-color: var(--cf-night-panel) !important; }
+html.theme--documenter-dark .content table tr:nth-child(even) { background-color: rgba(255, 255, 255, 0.02) !important; }
+
+/* Rules + source-link button */
+html.theme--documenter-dark hr { background-color: var(--cf-night-border) !important; }
+html.theme--documenter-dark details.docstring > section > a.button.docs-sourcelink {
+    background-color: var(--cf-night-panel) !important;
+    border: 1px solid var(--cf-night-border) !important;
+    color: var(--cf-night-soft) !important;
+}
+
+/* Footer + prev/next pagination */
+html.theme--documenter-dark #documenter .docs-main .docs-footer { border-top: 1px solid var(--cf-night-border) !important; }
+html.theme--documenter-dark .pagination-previous,
+html.theme--documenter-dark .pagination-next,
+html.theme--documenter-dark .pagination-link {
+    border-color: var(--cf-night-border) !important;
+    color: var(--cf-night-text) !important;
+}
+html.theme--documenter-dark .pagination-previous:hover,
+html.theme--documenter-dark .pagination-next:hover,
+html.theme--documenter-dark .pagination-link:hover {
+    border-color: var(--cf-night-amber) !important;
+    color: var(--cf-night-amber) !important;
+}
+
+/* Settings + search modals (the theme picker the reader opens to switch modes;
+   documenter-dark renders the modal body #fff, which would flash white here) */
+html.theme--documenter-dark .modal-card-head,
+html.theme--documenter-dark .modal-card-foot {
+    background-color: var(--cf-night-panel) !important;
+    border-color: var(--cf-night-border) !important;
+}
+html.theme--documenter-dark .modal-card-title { color: var(--cf-night-head) !important; }
+html.theme--documenter-dark .modal-card-body {
+    background-color: var(--cf-night-bg) !important;
+    color: var(--cf-night-text) !important;
+}
+
+/* Form controls — settings selects/inputs + the sidebar search field/button */
+html.theme--documenter-dark .select select,
+html.theme--documenter-dark .input,
+html.theme--documenter-dark .textarea,
+html.theme--documenter-dark #documenter .docs-sidebar .docs-search-query,
+html.theme--documenter-dark #documenter .docs-sidebar form.docs-search > input {
+    background-color: var(--cf-night-panel) !important;
+    border-color: var(--cf-night-border) !important;
+    color: var(--cf-night-soft) !important;
 }
 
 /* ---- MultiDocumenter top navigation strip -----------------------------
-   The strip appears above every aggregated package page. Selectors below
-   target the common cases (`.MultiDocumenter`, `#multi-docs-navbar`, and
-   plain `nav` near the top of `body`). Refine on the first preview build
-   once the actual class names are visible in devtools.
+   Always-dark brand chrome (deep ink + amber rule). Kept in every theme —
+   it uses fixed brand colours, not the paper palette, so it stays correct
+   in light and dark alike. `body > nav:first-of-type` targets only a nav
+   that is a direct child of <body> (the injected aggregation strip), never
+   the Documenter `.docs-sidebar`, which is nested under #documenter.
    --------------------------------------------------------------------- */
 .MultiDocumenter,
 .multi-doc-nav,
@@ -85,30 +348,3 @@ body > nav:first-of-type a {
 body > nav:first-of-type a:hover {
     color: var(--cf-amber) !important;
 }
-
-/* ---- Documenter sidebar tweaks ---------------------------------------
-   Keep Documenter's sidebar layout; just shift colors so the cassette
-   palette reaches the secondary chrome.
-   --------------------------------------------------------------------- */
-.docs-sidebar {
-    background-color: var(--cf-paper-deep) !important;
-    border-right: 1px solid var(--cf-rule);
-}
-.docs-sidebar a { color: var(--cf-ink-soft); }
-.docs-sidebar a:hover { color: var(--cf-red); }
-.docs-sidebar .docs-menu .tocitem.is-active,
-.docs-sidebar .docs-menu .is-active {
-    background-color: var(--cf-paper-bright);
-    border-left: 3px solid var(--cf-amber);
-    color: var(--cf-ink) !important;
-}
-
-/* ---- Blockquotes, hr, tables — small touches -------------------------- */
-blockquote {
-    border-left: 3px solid var(--cf-amber) !important;
-    color: var(--cf-ink-soft);
-    background: transparent;
-}
-hr { border-color: var(--cf-rule); opacity: 0.7; }
-table thead { border-bottom: 1.5px solid var(--cf-ink) !important; }
-table tbody tr { border-color: var(--cf-rule); }
