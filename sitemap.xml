@@ -19,6 +19,7 @@
 <url><loc>https://docs.juliaactuary.org/FinanceModels/stable/</loc></url>
 <url><loc>https://docs.juliaactuary.org/FinanceModels/stable/API/Bond/</loc></url>
 <url><loc>https://docs.juliaactuary.org/FinanceModels/stable/API/Equity/</loc></url>
+<url><loc>https://docs.juliaactuary.org/FinanceModels/stable/API/FX/</loc></url>
 <url><loc>https://docs.juliaactuary.org/FinanceModels/stable/API/FinanceCore/</loc></url>
 <url><loc>https://docs.juliaactuary.org/FinanceModels/stable/API/FinanceModels/</loc></url>
 <url><loc>https://docs.juliaactuary.org/FinanceModels/stable/API/Fit/</loc></url>
@@ -34,6 +35,7 @@
 <url><loc>https://docs.juliaactuary.org/FinanceModels/stable/developer/</loc></url>
 <url><loc>https://docs.juliaactuary.org/FinanceModels/stable/extensions/</loc></url>
 <url><loc>https://docs.juliaactuary.org/FinanceModels/stable/faq/</loc></url>
+<url><loc>https://docs.juliaactuary.org/FinanceModels/stable/fx/</loc></url>
 <url><loc>https://docs.juliaactuary.org/FinanceModels/stable/guide/</loc></url>
 <url><loc>https://docs.juliaactuary.org/FinanceModels/stable/interpolation/</loc></url>
 <url><loc>https://docs.juliaactuary.org/FinanceModels/stable/introduction/</loc></url>
