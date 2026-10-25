@@ -7,7 +7,7 @@
    file provides BOTH a light skin and a matching dark one:
 
      • LIGHT  (default + documenter-light)  -> cassette "paper": cream
-       surfaces, ink serif headings, red/amber accents.
+       surfaces, bold sans-serif headings, red/amber accents.
      • DARK   (documenter-dark)             -> cassette "night": the same
        identity inverted — deep navy-ink surfaces, warm paper text, amber/red
        accents. documenter-dark is the primary dark theme, so this is what a
@@ -15,7 +15,7 @@
      • catppuccin latte/frappe/macchiato/mocha are left NATIVE as alternative
        options in the theme picker.
 
-   Brand typography (Atkinson / Source Serif 4 / JuliaMono) applies in every
+   Brand typography (Inter / Atkinson Hyperlegible / JuliaMono) applies in every
    theme. Documenter marks the active theme with a `theme--<name>` class on
    <html> (empty class = default light). Each skin is scoped to its theme(s)
    so it never bleeds into another — the previous dark-mode breakage came from
@@ -24,39 +24,122 @@
    documenter-dark, remapping its green-charcoal neutrals to navy.
    ===================================================================== */
 
-/* @import MUST come before any style rule or the browser drops it — which is
-   why the brand fonts previously failed to load on package pages. */
-@import url("https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400;1,700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap");
+/* Body text uses a pinned, local Inter subset. The variable font covers
+   regular through bold and includes the slant axis for oblique text.
+   Atkinson headings are linked in the document head. */
+@font-face {
+    font-family: "Inter";
+    src: url("webfonts/Inter-Variable-Web.woff2") format("woff2");
+    font-weight: 400 700;
+    font-style: normal;
+    font-display: swap;
+}
+@font-face {
+    font-family: "Inter";
+    src: url("webfonts/Inter-Variable-Web.woff2") format("woff2");
+    font-weight: 400 700;
+    font-style: oblique 0deg 10deg;
+    font-display: swap;
+}
+@font-face {
+    font-family: "JuliaMono";
+    src: url("webfonts/JuliaMono-Regular-Web.woff2") format("woff2");
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+}
+@font-face {
+    font-family: "JuliaMono";
+    src: url("webfonts/JuliaMono-Bold-Web.woff2") format("woff2");
+    font-weight: 700;
+    font-style: normal;
+    font-display: swap;
+}
 
 :root {
     --cf-paper:        #F0EDE3;
     --cf-paper-deep:   #E6E2D5;
     --cf-paper-bright: #F7F4EB;
     --cf-ink:          #1B2A3A;
-    --cf-ink-soft:    #3C4A5C;
+    --cf-ink-soft:     #3C4A5C;
     --cf-rule:         #B6AD90;
-    --cf-red:          #C8351C;
+    --cf-red:          #B5321E;
+    --cf-rust:         #974413;
     --cf-amber:        #D4A017;
     --cf-blue:         #1F4E79;
 }
 
 /* ---- Typography — applied in ALL themes -------------------------------
-   Atkinson Hyperlegible body / Source Serif 4 headings / JuliaMono code.
+   Inter body / Atkinson Hyperlegible headings / JuliaMono code.
    Colour is NOT set here; only the type, so the brand fonts survive into
    dark mode while each theme keeps its own colours.
    --------------------------------------------------------------------- */
 html, body {
-    font-family: "Atkinson Hyperlegible", "Inter", system-ui, -apple-system,
-        "Helvetica Neue", sans-serif !important;
+    font-family: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif !important;
 }
-h1, h2, h3, h4, h5, h6,
+h1, h2, h3, h4, h5, h6, .docs-package-name,
 .docs-main h1, .docs-main h2, .docs-main h3, .docs-main h4, .docs-main h5, .docs-main h6 {
-    font-family: "Source Serif 4", Georgia, "Times New Roman", Times, serif !important;
-    font-weight: 400 !important;
+    font-family: "Atkinson Hyperlegible", system-ui, -apple-system, "Segoe UI", sans-serif !important;
+    font-weight: 700 !important;
+    line-height: 1.25;
+    overflow-wrap: anywhere;
 }
 pre, code, kbd, samp,
 .docs-main pre, .docs-main code {
     font-family: "JuliaMono", ui-monospace, monospace !important;
+}
+
+/* Inline identifiers may wrap; code blocks keep their own horizontal scroll. */
+:not(pre) > code {
+    white-space: normal;
+    overflow-wrap: anywhere;
+}
+pre {
+    max-width: 100%;
+    overflow-x: auto;
+}
+
+/* Reading layout C: comfortable prose, restrained headings, quiet inline
+   identifiers. Wide examples, tables, and figures retain Documenter's width. */
+html:root #documenter .docs-main > article.content {
+    font-size: 1rem;
+    line-height: 1.75;
+}
+html:root #documenter .docs-main .content p,
+html:root #documenter .docs-main .content ul,
+html:root #documenter .docs-main .content ol,
+html:root #documenter .docs-main .content blockquote {
+    max-width: 64ch;
+}
+html:root #documenter .docs-main .content :is(p, ul, ol, blockquote):has(pre, table, img, .katex-display) {
+    max-width: none;
+}
+html:root #documenter .docs-main .content p:not(:last-child) {
+    margin-bottom: 1.25em;
+}
+html:root #documenter .docs-main .content h1 { font-size: 1.8rem; }
+html:root #documenter .docs-main .content h2 { font-size: 1.4rem; }
+html:root #documenter .docs-main .content h3 { font-size: 1.2rem; }
+html:root #documenter .docs-main .content h4 { font-size: 1.05rem; }
+html:root #documenter .docs-main .content h5,
+html:root #documenter .docs-main .content h6 { font-size: 1rem; }
+html:root #documenter .docs-main .content h2,
+html:root #documenter .docs-main .content h3,
+html:root #documenter .docs-main .content h4,
+html:root #documenter .docs-main .content h5,
+html:root #documenter .docs-main .content h6 {
+    margin-top: 2rem;
+    margin-bottom: 1.25rem;
+}
+html:root #documenter .docs-main :not(pre) > code {
+    background: transparent !important;
+    color: inherit !important;
+    padding: 0;
+    font-size: .9em;
+}
+html:root #documenter .docs-main pre > code {
+    background: transparent !important;
+    line-height: 1.5;
 }
 
 /* ---- Cassette "paper" palette — LIGHT experience only ----------------
@@ -77,7 +160,8 @@ html:not(.theme--documenter-dark):not(.theme--catppuccin-latte):not(.theme--catp
 
     a          { color: var(--cf-red); }
     a:hover,
-    a:focus    { color: var(--cf-amber); }
+    a:focus    { color: var(--cf-rust); }
+    :focus-visible { outline: 3px solid var(--cf-blue); outline-offset: 3px; }
     /* Section headings are anchors too; keep them ink, not link-red
        (docstring bindings, `a.docstring-binding`, stay accent-coloured). */
     a.docs-heading-anchor,
@@ -87,23 +171,21 @@ html:not(.theme--documenter-dark):not(.theme--catppuccin-latte):not(.theme--catp
     pre, .docs-main pre {
         background-color: var(--cf-paper-bright) !important;
         border: 1px solid var(--cf-rule) !important;
-        border-radius: 4px;
+        border-radius: 3px;
     }
     :not(pre) > code, .docs-main :not(pre) > code {
-        background-color: var(--cf-paper-deep) !important;
+        background-color: transparent !important;
         color: var(--cf-ink) !important;
-        padding: 1px 5px;
-        border-radius: 2px;
     }
 
     /* Documenter sidebar — keep its layout, shift to the paper palette. */
     .docs-sidebar { background-color: var(--cf-paper-deep) !important; border-right: 1px solid var(--cf-rule); }
     .docs-sidebar a { color: var(--cf-ink-soft); }
     .docs-sidebar a:hover { color: var(--cf-red); }
-    .docs-sidebar .docs-menu .tocitem.is-active,
-    .docs-sidebar .docs-menu .is-active {
+    .docs-sidebar .docs-menu li.is-active > a.tocitem,
+    .docs-sidebar .docs-menu li.is-active > label.tocitem {
         background-color: var(--cf-paper-bright);
-        border-left: 3px solid var(--cf-amber);
+        box-shadow: inset 3px 0 0 var(--cf-amber);
         color: var(--cf-ink) !important;
     }
 
@@ -141,6 +223,8 @@ html.theme--documenter-dark {
 
     background-color: var(--cf-night-bg) !important;
     color: var(--cf-night-text) !important;
+
+    :focus-visible { outline: 3px solid var(--cf-night-amber); outline-offset: 3px; }
 }
 
 /* Base surfaces */
@@ -151,7 +235,7 @@ html.theme--documenter-dark #documenter .docs-main {
 }
 html.theme--documenter-dark .content { color: var(--cf-night-text) !important; }
 
-/* Headings — bright paper (serif already applied in the typography block) */
+/* Headings — bright paper, with shared bold typography. */
 html.theme--documenter-dark h1, html.theme--documenter-dark h2,
 html.theme--documenter-dark h3, html.theme--documenter-dark h4,
 html.theme--documenter-dark h5, html.theme--documenter-dark h6,
@@ -213,15 +297,16 @@ html.theme--documenter-dark #documenter .docs-sidebar ul.docs-menu label.tocitem
     background-color: var(--cf-night-hover) !important;
     color: var(--cf-night-head) !important;
 }
-html.theme--documenter-dark #documenter .docs-sidebar ul.docs-menu li.is-active,
-html.theme--documenter-dark #documenter .docs-sidebar ul.docs-menu li.is-active .tocitem,
-html.theme--documenter-dark #documenter .docs-sidebar ul.docs-menu li.is-active .tocitem:hover {
+html.theme--documenter-dark #documenter .docs-sidebar ul.docs-menu li.is-active > a.tocitem,
+html.theme--documenter-dark #documenter .docs-sidebar ul.docs-menu li.is-active > label.tocitem,
+html.theme--documenter-dark #documenter .docs-sidebar ul.docs-menu li.is-active > a.tocitem:hover,
+html.theme--documenter-dark #documenter .docs-sidebar ul.docs-menu li.is-active > label.tocitem:hover {
     background-color: var(--cf-night-panel) !important;
     color: var(--cf-night-head) !important;
     border-color: var(--cf-night-border) !important;
     box-shadow: inset 3px 0 0 var(--cf-night-amber) !important;  /* amber accent, echoes light theme */
 }
-html.theme--documenter-dark #documenter .docs-sidebar ul.docs-menu>li li { border-left: 1px solid var(--cf-night-border) !important; }
+html.theme--documenter-dark #documenter .docs-sidebar ul.docs-menu > li li { border-color: var(--cf-night-border) !important; }
 html.theme--documenter-dark #documenter .docs-sidebar { border-color: var(--cf-night-border) !important; }
 
 /* Top navbar / breadcrumb */
@@ -321,6 +406,31 @@ html.theme--documenter-dark #documenter .docs-sidebar form.docs-search > input {
     color: var(--cf-night-soft) !important;
 }
 
+/* Subsection links use indentation, leaving the active-page stripe on its
+   own row. Documenter's generated bullet otherwise crowds the tree border. */
+html:root #documenter .docs-sidebar ul.docs-menu li.is-active {
+    background: transparent !important;
+    border-block: 0 !important;
+    box-shadow: none !important;
+}
+html:root #documenter .docs-sidebar ul.docs-menu ul.internal {
+    border-top: 0;
+    margin: .125rem .5rem .75rem;
+}
+html:root #documenter .docs-sidebar ul.docs-menu ul.internal li {
+    border-left: 0 !important;
+    margin-top: 0;
+}
+html:root #documenter .docs-sidebar ul.docs-menu ul.internal .tocitem {
+    padding: .375rem .5rem .375rem 1rem;
+    font-size: .875rem;
+    line-height: 1.5;
+    box-shadow: none !important;
+}
+html:root #documenter .docs-sidebar ul.docs-menu ul.internal .tocitem::before {
+    content: none;
+}
+
 /* ---- MultiDocumenter top navigation strip -----------------------------
    Always-dark brand chrome (deep ink + amber rule). Kept in every theme —
    it uses fixed brand colours, not the paper palette, so it stays correct
@@ -347,4 +457,123 @@ body > nav:first-of-type a {
 #multi-docs-navbar a:hover,
 body > nav:first-of-type a:hover {
     color: var(--cf-amber) !important;
+}
+
+/* Brand navigation has its own high-contrast focus color in every theme. */
+body > nav:first-of-type :focus-visible {
+    outline: 3px solid var(--cf-amber);
+    outline-offset: 3px;
+}
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        scroll-behavior: auto !important;
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
+/* Keep global search on the navigation strip and its results on brand surfaces. */
+#multi-page-nav {
+    --cf-search-bg: var(--cf-paper-bright);
+    --cf-search-hover: var(--cf-paper-deep);
+    --cf-search-text: var(--cf-ink);
+    --cf-search-soft: var(--cf-ink-soft);
+    --cf-search-rule: var(--cf-rule);
+    --cf-search-focus: var(--cf-blue);
+}
+html.theme--documenter-dark #multi-page-nav {
+    --cf-search-bg: var(--cf-night-panel);
+    --cf-search-hover: var(--cf-night-hover);
+    --cf-search-text: var(--cf-night-text);
+    --cf-search-soft: var(--cf-night-soft);
+    --cf-search-rule: var(--cf-night-border);
+    --cf-search-focus: var(--cf-night-amber);
+}
+#multi-page-nav .search #search-input {
+    min-height: 40px;
+    font-size: 1rem;
+    color: var(--cf-paper);
+    border-color: var(--cf-rule);
+}
+#multi-page-nav .search #search-input::placeholder { color: var(--cf-paper); }
+#multi-page-nav .search:focus-within #search-input,
+html.theme--documenter-dark #multi-page-nav .search:focus-within #search-input {
+    background: var(--cf-search-bg);
+    color: var(--cf-search-text);
+    outline: 2px solid var(--cf-amber);
+    outline-offset: 2px;
+}
+#multi-page-nav .search:focus-within #search-input::placeholder { color: var(--cf-search-soft); }
+#multi-page-nav .suggestions,
+html.theme--documenter-dark #multi-page-nav .suggestions {
+    background: var(--cf-search-bg);
+    border: 1px solid var(--cf-search-rule);
+    border-radius: 3px;
+    min-width: 0;
+    width: min(36rem, calc(100vw - 2rem));
+    max-width: calc(100vw - 2rem);
+    max-height: min(50dvh, 24rem);
+    right: 1rem;
+    margin: .25rem 0;
+}
+#multi-page-nav .suggestions a { color: var(--cf-search-text) !important; }
+#multi-page-nav .suggestions .suggestion {
+    word-break: normal;
+    overflow-wrap: anywhere;
+}
+#multi-page-nav .suggestions .suggestion .suggestion-excerpt,
+html.theme--documenter-dark #multi-page-nav .suggestions .suggestion .suggestion-excerpt { color: var(--cf-search-soft); }
+#multi-page-nav .suggestions .suggestion-header:hover,
+html.theme--documenter-dark #multi-page-nav .suggestions .suggestion-header:hover,
+#multi-page-nav .suggestions .suggestion-header:focus,
+html.theme--documenter-dark #multi-page-nav .suggestions .suggestion-header:focus { background: var(--cf-search-hover); }
+#multi-page-nav .suggestions .suggestion-header:focus-visible {
+    outline: 3px solid var(--cf-search-focus);
+    outline-offset: -3px;
+}
+#multi-page-nav .suggestions mark,
+html.theme--documenter-dark #multi-page-nav .suggestions mark {
+    background: var(--cf-amber);
+    color: var(--cf-ink);
+}
+#multi-page-nav #multidoc-toggler {
+    align-items: center;
+    gap: .5rem;
+    color: var(--cf-paper);
+}
+#multi-page-nav #multidoc-toggler::before {
+    content: "Packages";
+    font: 700 1rem "Atkinson Hyperlegible", system-ui, sans-serif;
+}
+
+/* Seven package links plus search need more room than MultiDocumenter's
+   default breakpoint. Collapse before they wrap over the document toolbar. */
+@media screen and (max-width: 1600px) {
+    #multi-page-nav { height: auto; min-height: var(--navbar-height); flex-wrap: wrap; }
+    #multi-page-nav #nav-items {
+        flex: 1 0 100%;
+        order: 2;
+        flex-direction: column;
+        flex-wrap: nowrap;
+        min-width: 0;
+        margin-top: 1rem;
+    }
+    #multi-page-nav .hidden-on-mobile { display: none !important; }
+    #multi-page-nav .nav-item {
+        line-height: 1.5;
+        padding: .5rem 0;
+        width: 100%;
+        min-height: 44px;
+    }
+    #multi-page-nav #multidoc-toggler { display: inline-flex; }
+    #multi-page-nav .search #search-input { width: 100%; min-height: 44px; }
+}
+
+/* Upstream package logos often contain black lettering. Give them the same
+   paper plate used by the main site's navigation so they work in dark mode. */
+html.theme--documenter-dark .docs-sidebar .docs-logo img {
+    background: var(--cf-paper);
+    border: 1px solid var(--cf-amber);
+    border-radius: 3px;
+    padding: .25rem;
 }
