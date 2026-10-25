@@ -20,7 +20,12 @@ The GitHub Actions workflow (`deploy.yml`) runs every 12 hours and on push to `m
 
 1. Clones each package's `gh-pages` branch
 2. Aggregates them with MultiDocumenter.jl (adding global nav and search)
-3. Deploys the result to `gh-pages`
+3. Normalizes old package documentation URLs in historical releases to this portal
+4. Deploys the result to `gh-pages`
+
+Historical links preserve their version, page, query, and section fragment.
+The former Yields documentation maps to FinanceModels, which retains those versions.
+Only the seven core packages are normalized; experimental package sites stay separate.
 
 ## DNS Setup
 

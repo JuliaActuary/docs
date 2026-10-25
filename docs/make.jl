@@ -1,5 +1,6 @@
 using MultiDocumenter
 include("theme.jl")
+include("links.jl")
 
 theme = prepare_theme_assets()
 
@@ -410,7 +411,7 @@ landing_page = """
 """
 write(joinpath(outpath, "index.html"), landing_page)
 
-# Apply shared fonts/search labels and inject analytics into package pages.
+# Apply shared presentation, normalize legacy links, and inject analytics.
 goatcounter_script = """<script data-goatcounter="https://juliaactuary.goatcounter.com/count"
     async src="//gc.zgo.at/count.js"></script>"""
 
@@ -420,6 +421,7 @@ for (root, dirs, files) in walkdir(outpath)
         filepath = joinpath(root, file)
         content = read(filepath, String)
         content = apply_shared_theme(content)
+        content = normalize_documentation_links(content)
         if !occursin("goatcounter", content) && occursin("</body>", content)
             content = replace(content, "</body>" => goatcounter_script * "\n</body>")
         end

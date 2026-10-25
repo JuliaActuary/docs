@@ -41,3 +41,28 @@ end
     @test occursin("pagefind_integration.js", result)
     @test apply_shared_theme(result) == result
 end
+
+
+include("../docs/links.jl")
+@testset "Historical documentation links" begin
+    old = "https://JuliaActuary.github.io/FinanceModels.jl/v4.3.0/interpolation/?mode=full#CubicSpline"
+    current = "https://docs.juliaactuary.org/FinanceModels/v4.3.0/interpolation/?mode=full#CubicSpline"
+    @test normalize_documentation_links("<a href=\"$old\">Guide</a>") == "<a href=\"$current\">Guide</a>"
+    @test normalize_documentation_links(current) == current
+    @test normalize_documentation_links("http://juliaactuary.github.io/Yields.jl/v1.1.2/") ==
+          "https://docs.juliaactuary.org/FinanceModels/v1.1.2/"
+    @test normalize_documentation_links("//JuliaActuary.github.io/MortalityTables.jl/stable/#MortalityTable") ==
+          "https://docs.juliaactuary.org/MortalityTables/stable/#MortalityTable"
+    @test normalize_documentation_links("<meta content=\"https://JuliaActuary.github.io/FinanceCore.jl/\">") ==
+          "<meta content=\"https://docs.juliaactuary.org/FinanceCore/\">"
+    for untouched in (
+        "https://juliaactuary.github.io/ChainLadder.jl/stable/",
+        "https://juliaactuary.github.io/LifeSimulator.jl/dev/",
+        "https://juliaactuary.github.io/Learn/soa_life_meeting_2023/slides.html",
+        "https://juliadocs.github.io/Documenter.jl/stable/",
+        "https://github.com/JuliaActuary/FinanceModels.jl",
+        "https://juliaactuary.github.io/FinanceModels.jl.example/",
+    )
+        @test normalize_documentation_links(untouched) == untouched
+    end
+end
