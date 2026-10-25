@@ -1,4 +1,7 @@
 using MultiDocumenter
+include("theme.jl")
+
+theme = prepare_theme_assets()
 
 clonedir = mktempdir()
 outpath  = mktempdir()
@@ -59,8 +62,8 @@ MultiDocumenter.make(
     canonical_domain   = "https://docs.juliaactuary.org",
     sitemap            = true,
     # cassette-futurism palette + typography applied site-wide.
-    assets_dir         = joinpath(@__DIR__, "assets"),
-    custom_stylesheets = ["assets/cassette.css"],
+    assets_dir         = theme.directory,
+    custom_stylesheets = [BRAND_FONT_STYLESHEET, theme.stylesheet],
 )
 
 # Custom landing page (replaces the auto-generated redirect)
@@ -74,26 +77,15 @@ landing_page = """
     <link rel="canonical" href="https://docs.juliaactuary.org/" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400;1,700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="assets/cassette.css">
+    <link href="$BRAND_FONT_STYLESHEET" rel="stylesheet">
+    <link rel="stylesheet" href="$(theme.stylesheet)">
     <style>
-        :root {
-            --cf-paper:        #F0EDE3;
-            --cf-paper-deep:   #E6E2D5;
-            --cf-paper-bright: #F7F4EB;
-            --cf-ink:          #1B2A3A;
-            --cf-ink-soft:     #3C4A5C;
-            --cf-rule:         #B6AD90;
-            --cf-red:          #C8351C;
-            --cf-amber:        #D4A017;
-            --cf-blue:         #1F4E79;
-        }
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
-            font-family: "Atkinson Hyperlegible", "Inter", system-ui, sans-serif;
+            font-family: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
             background-color: var(--cf-paper);
             color: var(--cf-ink);
-            line-height: 1.6;
+            line-height: 1.65;
             min-height: 100vh;
             display: flex;
             flex-direction: column;
@@ -101,53 +93,53 @@ landing_page = """
         header {
             background: var(--cf-ink);
             color: var(--cf-paper);
-            padding: 2.5rem 1rem 2rem;
+            padding: clamp(1.5rem, 4vw, 2.5rem) 1rem 2rem;
             text-align: center;
             border-top: 2px solid var(--cf-amber);
             border-bottom: 2px solid var(--cf-red);
         }
-        .logo { width: 100px; height: 100px; margin-bottom: 0.75rem; filter: drop-shadow(0 2px 8px rgba(0,0,0,0.35)); }
+        .logo { width: 64px; height: 64px; margin-bottom: 0.75rem; }
         header h1 {
-            font-family: "Source Serif 4", Georgia, serif;
-            font-size: 2rem;
-            font-weight: 400;
+            font-family: inherit;
+            font-size: clamp(1.75rem, 4vw, 2.25rem);
+            font-weight: 700;
             margin-bottom: 0.5rem;
-            color: var(--cf-paper);
+            /* Override the shared light-theme heading color on this navy panel. */
+            color: var(--cf-paper) !important;
         }
-        header p { font-size: 1.05rem; opacity: 0.88; max-width: 600px; margin: 0 auto; color: var(--cf-paper); }
+        header > p { font-size: 1.05rem; opacity: 0.88; max-width: 600px; margin: 0 auto; color: var(--cf-paper); }
         main { max-width: 960px; margin: 2rem auto; padding: 0 1rem; flex: 1; width: 100%; }
         .grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(min(100%, 260px), 1fr));
             gap: 1rem;
             margin: 1.5rem 0 2rem;
         }
         .card {
             background: var(--cf-paper-bright);
             border: 1px solid var(--cf-rule);
-            border-radius: 4px;
-            padding: 1.25rem;
+            border-top: 3px solid var(--cf-blue);
+            border-radius: 3px;
+            padding: 1rem;
+            min-width: 0;
             text-decoration: none;
             color: var(--cf-ink);
-            transition: transform 120ms ease, box-shadow 120ms ease, border-color 120ms ease;
             display: block;
         }
         .card:hover {
-            transform: translateY(-2px);
-            border-color: var(--cf-amber);
-            box-shadow: 0 4px 12px rgba(27, 42, 58, 0.08);
+            border-color: var(--cf-blue);
         }
         .card h2 {
-            font-family: "Source Serif 4", Georgia, serif;
+            font-family: inherit;
             font-size: 1.15rem;
-            font-weight: 400;
+            font-weight: 700;
             color: var(--cf-ink);
             margin-bottom: 0.35rem;
         }
         .card p { font-size: 0.875rem; color: var(--cf-ink-soft); }
         .back-link { text-align: center; margin: 1rem 0 2rem; }
         .back-link a { color: var(--cf-red); font-weight: 500; text-decoration: none; }
-        .back-link a:hover { color: var(--cf-amber); text-decoration: underline; }
+        .back-link a:hover { color: var(--cf-rust); text-decoration: underline; }
         footer {
             text-align: center;
             padding: 1.5rem 1rem;
@@ -156,7 +148,7 @@ landing_page = """
             border-top: 1px solid var(--cf-rule);
         }
         footer a { color: var(--cf-red); }
-        footer a:hover { color: var(--cf-amber); }
+        footer a:hover { color: var(--cf-rust); }
         /* Search bar in header — sits on the deep-ink panel */
         #search-container {
             position: relative;
@@ -165,18 +157,19 @@ landing_page = """
         }
         #search-container #search-input {
             width: min(28em, 80vw);
-            height: 40px;
+            min-height: 44px;
             padding: 0 12px;
             font-size: 1rem;
             font-family: inherit;
             border: 1px solid rgba(240, 237, 227, 0.45);
-            border-radius: 4px;
+            border-radius: 3px;
             background: rgba(240, 237, 227, 0.10);
             color: var(--cf-paper);
             outline: none;
             transition: background 0.15s, border-color 0.15s;
         }
         #search-container #search-input::placeholder { color: rgba(240, 237, 227, 0.7); }
+        header :focus-visible { outline-color: var(--cf-amber); }
         #search-container #search-input:focus {
             background: var(--cf-paper);
             color: var(--cf-ink);
@@ -205,11 +198,12 @@ landing_page = """
             margin-top: 4px;
             background: var(--cf-paper-bright);
             border: 1px solid var(--cf-rule);
-            border-radius: 4px;
+            border-radius: 3px;
             padding: 0.4rem;
             list-style: none;
             z-index: 100;
-            max-height: max(50vh, 300px);
+            max-height: min(50dvh, 24rem);
+            overflow-wrap: anywhere;
             overflow-y: auto;
             text-align: left;
             box-shadow: 0 4px 12px rgba(27, 42, 58, 0.12);
@@ -227,23 +221,24 @@ landing_page = """
             text-decoration: none;
         }
         #search-container .suggestion-header:hover,
-        #search-container .suggestion-header:focus { background: var(--cf-paper-deep); outline: none; }
-        #search-container .suggestion .suggestion-title { font-size: 1rem; font-weight: 600; }
+        #search-container .suggestion-header:focus { background: var(--cf-paper-deep); }
+        #search-container .suggestion-header:focus-visible { outline-color: var(--cf-blue); outline-offset: -3px; }
+        #search-container .suggestion .suggestion-title { font-size: 1rem; font-weight: 700; color: var(--cf-ink); }
         #search-container .suggestion .suggestion-excerpt { font-size: 0.85rem; color: var(--cf-ink-soft); margin-top: 2px; }
         #search-container .sub-suggestions .suggestion-title { font-size: 0.9rem; }
     </style>
 </head>
 <body>
     <header>
-        <svg class="logo" viewBox="0 0 250 250" xmlns="http://www.w3.org/2000/svg" aria-label="JuliaActuary logo">
+        <svg class="logo" viewBox="0 0 250 250" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="JuliaActuary logo">
             <path fill="#CB3C33" stroke="rgba(255,255,255,0.6)" stroke-width="4" d="M 110 30 C 110 43.808594 98.808594 55 85 55 C 71.191406 55 60 43.808594 60 30 C 60 16.191406 71.191406 5 85 5 C 98.808594 5 110 16.191406 110 30"/>
             <path fill="#9558B2" stroke="rgba(255,255,255,0.6)" stroke-width="4" d="M 185 30 C 185 43.808594 173.808594 55 160 55 C 146.191406 55 135 43.808594 135 30 C 135 16.191406 146.191406 5 160 5 C 173.808594 5 185 16.191406 185 30"/>
             <path fill="white" d="M 102.300781 229.199219 C 88.695313 229.195313 77.847656 225.449219 69.75 217.949219 C 61.648438 210.453125 57.597656 200.300781 57.601563 187.5 C 57.597656 175.300781 60.945313 165.851563 67.648438 159.152344 C 74.34375 152.453125 83.996094 147.605469 96.597656 144.601563 C 109.199219 141.605469 124.5 139.703125 142.5 138.898438 L 142.5 117 C 142.5 106.203125 140.398438 98.355469 136.199219 93.453125 C 131.996094 88.554688 125.394531 86.105469 116.398438 86.101563 C 111.59375 86.105469 106.894531 86.804688 102.296875 88.203125 C 97.695313 89.605469 93.796875 91.605469 90.601563 94.199219 C 95.597656 102.804688 98.097656 108.402344 98.101563 111 C 98.097656 115.601563 96.246094 119.304688 92.550781 122.101563 C 88.847656 124.90625 84 126.304688 78 126.300781 C 72 126.304688 67.296875 124.753906 63.898438 121.652344 C 60.496094 118.550781 58.796875 114.101563 58.800781 108.300781 C 58.796875 101.101563 61.699219 94.402344 67.5 88.199219 C 73.296875 82.003906 80.945313 77.003906 90.449219 73.199219 C 99.945313 69.402344 110.195313 67.5 121.199219 67.5 C 141.398438 67.5 156.199219 72.152344 165.597656 81.449219 C 174.996094 90.753906 179.695313 105.203125 179.699219 124.800781 L 179.699219 192.300781 C 179.695313 201.304688 183.796875 205.804688 192 205.800781 C 193.796875 205.804688 195.746094 205.605469 197.847656 205.203125 C 199.949219 204.804688 202.398438 204.203125 205.199219 203.398438 L 208.800781 216.898438 C 204.597656 220.703125 199.648438 223.699219 193.949219 225.898438 C 188.246094 228.09375 182.496094 229.195313 176.699219 229.199219 C 168.898438 229.195313 162.5 227.046875 157.5 222.75 C 152.5 218.453125 149.199219 212.40625 147.601563 204.601563 C 137.199219 221 122.097656 229.195313 102.300781 229.199219 Z M 117 204.601563 C 125 204.605469 131.25 202.152344 135.75 197.25 C 140.25 192.351563 142.5 185.703125 142.5 177.300781 L 142.5 156.601563 C 127.699219 156.605469 116.246094 158.605469 108.148438 162.601563 C 100.046875 166.605469 96 173.503906 96 183.300781 C 96 189.902344 97.847656 195.101563 101.550781 198.902344 C 105.246094 202.703125 110.398438 204.605469 117 204.601563 Z M 210 225"/>
         </svg>
         <h1>JuliaActuary Documentation</h1>
         <p>Unified documentation for the JuliaActuary open-source actuarial modeling ecosystem.</p>
-        <div id="search-container">
-            <input id="search-input" placeholder="Search all packages..." autocomplete="off">
+        <div id="search-container" role="search">
+            <input id="search-input" type="search" aria-label="Search all package documentation" placeholder="Search all packages..." autocomplete="off">
             <ol id="search-result-container" class="suggestions hidden"></ol>
             <div class="search-keybinding">/</div>
         </div>
@@ -271,7 +266,7 @@ landing_page = """
                 <p>Core financial types and interfaces</p>
             </a>
             <a class="card" href="EconomicScenarioGenerators/stable/">
-                <h2>EconomicScenarioGenerators.jl</h2>
+                <h2>EconomicScenario<wbr>Generators.jl</h2>
                 <p>Interest rate and equity scenario generation</p>
             </a>
             <a class="card" href="ExperienceAnalysis/stable/">
@@ -415,7 +410,7 @@ landing_page = """
 """
 write(joinpath(outpath, "index.html"), landing_page)
 
-# Inject GoatCounter analytics into all package documentation pages
+# Apply shared fonts/search labels and inject analytics into package pages.
 goatcounter_script = """<script data-goatcounter="https://juliaactuary.goatcounter.com/count"
     async src="//gc.zgo.at/count.js"></script>"""
 
@@ -424,10 +419,11 @@ for (root, dirs, files) in walkdir(outpath)
         endswith(file, ".html") || continue
         filepath = joinpath(root, file)
         content = read(filepath, String)
-        occursin("goatcounter", content) && continue
-        if occursin("</body>", content)
-            write(filepath, replace(content, "</body>" => goatcounter_script * "\n</body>"))
+        content = apply_shared_theme(content)
+        if !occursin("goatcounter", content) && occursin("</body>", content)
+            content = replace(content, "</body>" => goatcounter_script * "\n</body>")
         end
+        write(filepath, content)
     end
 end
 

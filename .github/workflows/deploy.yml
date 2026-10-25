@@ -24,6 +24,8 @@ jobs:
           restore-keys: ${{ runner.os }}-multidoc-
       - name: Install dependencies
         run: julia --project=docs/ -e 'using Pkg; Pkg.instantiate()'
+      - name: Check theme assets
+        run: julia --project=docs/ test/runtests.jl
       - name: Aggregate and deploy
         run: |
           git config user.name github-actions

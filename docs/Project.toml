@@ -1,2 +1,3 @@
 [deps]
 MultiDocumenter = "87ed4bf0-c935-4a67-83c3-2a03bee4197c"
+SHA = "ea8e919c-243c-51af-8825-aaa63cd721ce"
